@@ -9,7 +9,7 @@ import json
 
 
 def mod_x(x):
-    return np.abs(x)
+    return np.sum(np.abs(x), axis=1, keepdims=True)
 
 
 def l1_norm(x):
@@ -21,12 +21,16 @@ def l2_norm(x):
 
 
 def mod_function(x):
-    return (3 / 4) * np.abs(x + 5) + (1 / 2) * np.abs(x - 5) + (
-        3 / 2) * np.abs(x - 10)
+    return np.sum((3 / 4) * np.abs(x + 5) + (1 / 2) * np.abs(x - 5) +
+                  (3 / 2) * np.abs(x - 10),
+                  keepdims=True,
+                  axis=1)
 
 
 def mod_function2(x):
-    return np.abs(x + 3) + np.abs(x + 9) + np.abs(x + 5)
+    return np.sum(np.abs(x + 3) + np.abs(x + 9) + np.abs(x + 5),
+                  keepdims=True,
+                  axis=1)
 
 
 def combination_function(x):

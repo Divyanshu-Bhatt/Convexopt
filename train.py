@@ -14,12 +14,16 @@ def model_initialisation(args):
                                   lr=args.lr,
                                   weight_decay=args.weight_decay)
 
-    return (network, criterion, optimizer)
+    scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer,
+                                                     milestones=[20, 200],
+                                                     gamma=0.1)
+
+    return (network, criterion, scheduler, optimizer)
 
 
 def model_train(network_credentials, train_loader, val_loader, test_loader,
                 args):
-    network, criterion, optimizer = network_credentials
+    network, criterion, schedular, optimizer = network_credentials
     del network_credentials
 
     network.to(args.device)
@@ -46,6 +50,7 @@ def model_train(network_credentials, train_loader, val_loader, test_loader,
 
             MLE_loss += loss
             counter += 1
+        schedular.step()
 
         print(f"\nEpoch: {epoch}")
         print(f"Training Loss| MLE Loss: {MLE_loss/counter}")

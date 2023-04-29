@@ -1,21 +1,19 @@
 #!/bin/sh
-func=l1_norm
-model_save_dir_prefix=MLP
+func=combination_function
+model_save_dir_prefix=MLP2
 
-lr=1e-4
-epochs=250
+lr=2e-3
+epochs=100
 evaluation_period=5
 device=mps
 
-common_loc_prefix=combination_function
-
 hidden_dims1=(64 128)
 hidden_dims2=(32 64)
-dimension=(10 15 20)
+dimension=(1 5 10)
 
 for data_dim in ${dimension[@]};
     do
-        parent_folder="$common_loc_prefix"_"$data_dim"
+        parent_folder="$func"_"$data_dim"
         python datagenerator.py --function $func --force 1 --common_loc $parent_folder --data_dim $data_dim
         for dims1 in ${hidden_dims1[@]};
             do

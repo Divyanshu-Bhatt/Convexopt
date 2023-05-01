@@ -12,33 +12,29 @@ def mod_x(x):
     return np.sum(np.abs(x), axis=1, keepdims=True)
 
 
-def l1_norm(x):
-    return np.sum(np.abs(x), axis=1, keepdims=True)
-
-
 def square(x):
-    return x**2
+    return np.sum(x**2, keepdims=True, axis=1)
 
 
 def combination_function(x):
     return np.max(np.hstack([mod_x(x), square(x)]), keepdims=True, axis=1)
 
 
-def l2_norm(x):
-    return np.sqrt(np.sum(x, axis=1, keepdims=True)**2)
+def negative_exp(x):
+    return np.sum(np.exp(-x), keepdims=True, axis=1)
 
 
-def mod_function(x):
-    return np.sum((3 / 4) * np.abs(x + 5) + (1 / 2) * np.abs(x - 5) +
-                  (3 / 2) * np.abs(x - 10),
-                  keepdims=True,
-                  axis=1)
+def ackely_func(x):
+    n = x.shape[1]
+    return -20 * np.exp(-0.2 * np.sqrt((1/n) * np.sum(x**2, keepdims=True, axis=1))) - \
+            np.exp((1/n) * np.sum(np.cos(2 * np.pi * x), keepdims=True, axis=1)) + \
+            np.exp(1) + 20
 
 
-def mod_function2(x):
-    return np.sum(np.abs(x + 3) + np.abs(x + 9) + np.abs(x + 5),
-                  keepdims=True,
-                  axis=1)
+def rosenbrock_func(x):
+    return np.sum(100 * (x[:, 1:] - x[:, :-1]**2)**2 + (x[:, :-1] - 1)**2,
+                  axis=1,
+                  keepdims=True)
 
 
 # def combination_function(x):
@@ -134,11 +130,11 @@ if __name__ == "__main__":
     # function, input_dimension, save_dir_name
     function_dic = {
         "mod_x": mod_x,
-        "l1_norm": l1_norm,
-        "l2_norm": l2_norm,
-        "mod_function": mod_function,
+        "square": square,
         "combination_function": combination_function,
-        "mod_function2": mod_function2
+        "negative_exp": negative_exp,
+        "ackely_func": ackely_func,
+        "rosenbrock_func": rosenbrock_func
     }
 
     if not os.path.isdir("data"):

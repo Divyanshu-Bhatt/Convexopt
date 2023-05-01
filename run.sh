@@ -1,6 +1,6 @@
 #!/bin/sh
 func=combination_function
-model_save_dir_prefix=MLP2
+model_save_dir_prefix=MLP
 
 lr=2e-3
 epochs=100

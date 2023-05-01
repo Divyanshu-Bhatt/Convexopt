@@ -42,7 +42,8 @@ def combination_function(x):
 
 
 def datageneration(args, function_dic):
-    orig_function, input_dim = function_dic[args.function]
+    orig_function = function_dic[args.function]
+    input_dim = args.data_dim
     save_dir = os.path.join(args.data_dir, args.function)
 
     if os.path.isdir(save_dir):
@@ -63,21 +64,21 @@ def datageneration(args, function_dic):
 
     train_data, test_data, train_target, test_target = train_test_split(
         x, functional_output, test_size=args.test_ratio)
-    train_data, val_data, train_target, val_target = train_test_split(
-        train_data, train_target, test_size=args.test_ratio)
 
-    print(train_data.shape, train_target.shape)
+    np.save(os.path.join(save_dir, "train_data.npy"), train_data.cpu().numpy())
+    np.save(os.path.join(save_dir, "train_target.npy"),
+            train_target.cpu().numpy())
+    np.save(os.path.join(save_dir, "test_data.npy"), test_data.cpu().numpy())
+    np.save(os.path.join(save_dir, "test_target.npy"),
+            test_target.cpu().numpy())
 
     train_dataset = TensorDataset(train_data, train_target)
-    val_dataset = TensorDataset(val_data, val_target)
     test_dataset = TensorDataset(test_data, test_target)
 
     train_loader = DataLoader(train_dataset, batch_size=args.batch_size)
-    val_loader = DataLoader(val_dataset, batch_size=args.batch_size)
     test_loader = DataLoader(test_dataset, batch_size=args.batch_size)
 
     torch.save(train_loader, os.path.join(save_dir, 'trainloader.pth'))
-    torch.save(val_loader, os.path.join(save_dir, 'valloader.pth'))
     torch.save(test_loader, os.path.join(save_dir, 'testloader.pth'))
 
     with open(os.path.join(save_dir, "config.json"), "w") as file:
@@ -91,9 +92,6 @@ def datageneration(args, function_dic):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="datagenerator.py")
 
-    parser.add_argument("--high", type=float, default=100, help="upper limit")
-    parser.add_argument("--low", type=float, default=-100, help="lower limit")
-    parser.add_argument("--batch_size", type=int, default=64)
     parser.add_argument("--num_points",
                         type=int,
                         default=10**5,
@@ -113,23 +111,27 @@ if __name__ == "__main__":
                         type=str,
                         default="data",
                         help="parent data dir")
-    parser.add_argument("--data_dim", type=int, default=10)
-    parser.add_argument("--force", type=bool, default=False)
+    parser.add_argument("--force",
+                        type=bool,
+                        default=False,
+                        help="regenerate the data even if data already exists")
     parser.add_argument("--common_loc", type=str, required=True)
+    parser.add_argument("--data_dim", type=int, default=1)
+    parser.add_argument("--high", type=float, default=100, help="upper limit")
+    parser.add_argument("--low", type=float, default=-100, help="lower limit")
+    parser.add_argument("--batch_size", type=int, default=64)
 
     args = parser.parse_args()
 
     # function, input_dimension, save_dir_name
     function_dic = {
-        "mod_x": (mod_x, 1),
-        "l1_norm": (l1_norm, args.data_dim),
-        "l2_norm": (l2_norm, 10),
-        "mod_function": (mod_function, 1),
-        "combination_function": (combination_function, args.data_dim),
-        "mod_function2": (mod_function2, 1)
+        "mod_x": mod_x,
+        "l1_norm": l1_norm,
+        "l2_norm": l2_norm,
+        "mod_function": mod_function,
+        "combination_function": combination_function,
+        "mod_function2": mod_function2
     }
-
-    args.in_dim = function_dic[args.function][1]
 
     if not os.path.isdir("data"):
         os.mkdir("data")

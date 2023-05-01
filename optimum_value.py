@@ -6,7 +6,7 @@ import os
 import argparse
 
 
-def optimum_value(network_dir, epochs):
+def optimum_value(network_dir, iterations):
     network_args = json.load(open(os.path.join(network_dir, "config.json")))
     network = MLP(network_args["in_dim"], network_args["hidden_dims"])
     network.load_state_dict(torch.load(os.path.join(network_dir,
@@ -19,7 +19,7 @@ def optimum_value(network_dir, epochs):
                                  network_args["in_dim"])).requires_grad_(True)
 
     optimizer = torch.optim.AdamW([x], lr=1e-4)
-    for epoch in range(1, epochs + 1):
+    for idx in range(1, iterations + 1):
         optimizer.zero_grad()
 
         y = network(x)
@@ -33,20 +33,20 @@ def optimum_value(network_dir, epochs):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="optimum_value.py")
+
     parser.add_argument("--network_dir", type=str, required=True)
     parser.add_argument("--common_loc", type=str, required=True)
+    parser.add_argument("--iterations", type=int, default=30000)
     args = parser.parse_args()
 
     args.network_dir = os.path.join("trained_model", args.network_dir)
 
-    opt_value, x = optimum_value(args.network_dir, 30000)
-
+    opt_value, x = optimum_value(args.network_dir, args.iterations)
     print("Optimum value: ", opt_value)
     print("Optimum x: ", x)
 
     opt_dict = {"optimum_value": opt_value, "optimum_x": x.tolist()}
-
     with open(
             os.path.join("run_configs", args.common_loc,
-                         "optimumvalue_config.json"), "w") as file:
+                         "ann_optimumvalue_config.json"), "w") as file:
         json.dump(opt_dict, file, indent=0)

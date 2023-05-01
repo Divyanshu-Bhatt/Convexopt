@@ -15,14 +15,13 @@ def model_initialisation(args):
                                   weight_decay=args.weight_decay)
 
     scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer,
-                                                     milestones=[20, 200],
-                                                     gamma=0.1)
+                                                     milestones=[15, 30, 45],
+                                                     gamma=0.5)
 
     return (network, criterion, scheduler, optimizer)
 
 
-def model_train(network_credentials, train_loader, val_loader, test_loader,
-                args):
+def model_train(network_credentials, train_loader, val_loader, args):
     network, criterion, schedular, optimizer = network_credentials
     del network_credentials
 
@@ -66,19 +65,20 @@ def model_train(network_credentials, train_loader, val_loader, test_loader,
                 args.best_epoch = epoch
                 print(f"Saving model at Epoch: {epoch}")
 
+            if val_loss < args.epsilon:
+                print("Early Stopping")
+                break
+
     network.load_state_dict(
         torch.load(os.path.join(args.model_save_dir, "network.pt")))
 
-    print("\nTest Loss")
-    _, args.test_loss = model_eval(network, test_loader, criterion, args)
-
 
 def model_eval(network, dataloader, criterion, args):
-
     network.eval()
     network.to(args.device)
 
-    MLE_loss = 0
+    MSE_loss = 0
+    MAE_loss = 0
     counter = 0
     predictions = []
 
@@ -90,11 +90,12 @@ def model_eval(network, dataloader, criterion, args):
             prediction = network(input_embeds)
             loss = criterion(prediction, target)
 
-            MLE_loss += loss
-
+            MSE_loss += loss
+            MAE_loss += torch.abs(prediction - target).sum()
             predictions.append(prediction.detach().cpu().numpy())
             counter += 1
 
-    print(f"MLE Loss: {MLE_loss/counter}")
+    print(f"MSE Loss: {MSE_loss}")
+    MAE_loss = MAE_loss / counter
 
-    return np.vstack(predictions), (MLE_loss / counter).item()
+    return np.vstack(predictions), MAE_loss.item()

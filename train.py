@@ -29,6 +29,9 @@ def model_train(network_credentials, train_loader, val_loader, args):
     args.best_val_loss = np.inf
     args.best_epoch = 0
 
+    print("Random Initialisation Loss")
+    model_eval(network, val_loader, criterion, args)
+
     for epoch in range(1, args.epochs + 1):
         network.train()
         MLE_loss = 0
@@ -52,7 +55,7 @@ def model_train(network_credentials, train_loader, val_loader, args):
         schedular.step()
 
         print(f"\nEpoch: {epoch}")
-        print(f"Training Loss| MLE Loss: {MLE_loss/counter}")
+        print(f"Training Loss| Average Batch MSE Loss: {MLE_loss/counter}")
 
         if epoch % args.evaluation_period == 0:
             print("Validation Loss")
@@ -95,7 +98,7 @@ def model_eval(network, dataloader, criterion, args):
             predictions.append(prediction.detach().cpu().numpy())
             counter += 1
 
-    print(f"MSE Loss: {MSE_loss}")
+    print(f"MSE Loss: {MSE_loss/counter}")
     MAE_loss = MAE_loss / counter
 
     return np.vstack(predictions), MAE_loss.item()

@@ -16,6 +16,14 @@ def l1_norm(x):
     return np.sum(np.abs(x), axis=1, keepdims=True)
 
 
+def square(x):
+    return x**2
+
+
+def combination_function(x):
+    return np.max(np.hstack([mod_x(x), square(x)]), keepdims=True, axis=1)
+
+
 def l2_norm(x):
     return np.sqrt(np.sum(x, axis=1, keepdims=True)**2)
 
@@ -33,12 +41,12 @@ def mod_function2(x):
                   axis=1)
 
 
-def combination_function(x):
-    return np.max(np.hstack(
-        [mod_x(x), x**2, mod_function(x),
-         mod_function2(x)]),
-                  keepdims=True,
-                  axis=1)
+# def combination_function(x):
+#     return np.max(np.hstack(
+#         [mod_x(x), x**2, mod_function(x),
+#          mod_function2(x)]),
+#                   keepdims=True,
+#                   axis=1)
 
 
 def datageneration(args, function_dic):

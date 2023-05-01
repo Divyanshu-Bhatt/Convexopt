@@ -101,7 +101,7 @@ def main(args):
         np.load(os.path.join(args.data_dir, "test_target.npy"))).to(
             torch.float32).to(args.device)
 
-    layer_widths = [2, 1]
+    layer_widths = [args.in_dim, 1]
     layer_centres = [40]
 
     rbfnet = Network(layer_widths, layer_centres, rbf.gaussian).to(args.device)
@@ -133,7 +133,11 @@ def main(args):
 
     print("Optimum value: ", opt_value)
     print("Optimum x: ", opt_x)
-    opt_dict = {"optimum_value": opt_value, "optimum_x": opt_x.tolist()}
+    opt_dict = {
+        "optimum_value": opt_value,
+        "optimum_x": opt_x.tolist(),
+        "distance": np.sum(np.abs(opt_x.detach().cpu().numpy()))
+    }
     with open(
             os.path.join("run_configs", args.common_loc,
                          "rbf_optimumvalue_config.json"), "w") as file:

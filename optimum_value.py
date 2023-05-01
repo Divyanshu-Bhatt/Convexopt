@@ -4,6 +4,7 @@ from model.mlp import MLP
 import json
 import os
 import argparse
+import numpy as np
 
 
 def optimum_value(network_dir, iterations):
@@ -45,7 +46,11 @@ if __name__ == "__main__":
     print("Optimum value: ", opt_value)
     print("Optimum x: ", x)
 
-    opt_dict = {"optimum_value": opt_value, "optimum_x": x.tolist()}
+    opt_dict = {
+        "optimum_value": opt_value,
+        "optimum_x": x.tolist(),
+        "distance": np.sum(np.abs(x.detach().cpu().numpy()))
+    }
     with open(
             os.path.join("run_configs", args.common_loc,
                          "ann_optimumvalue_config.json"), "w") as file:
